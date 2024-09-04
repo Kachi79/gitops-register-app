@@ -1,1 +1,28 @@
+pipeline {
+  agent { label 'Jenkins-Agent'}
+  environment {
+            APP_NAME = "register-app-pipeline"
+  }
 
+   stages {
+      stage("Cleanup Workspace") {
+        steps {
+          cleanWs()
+       }
+     }
+  stage('Checkout From Git') {
+     steps {
+          git branch: 'main', credentialsId: 'GitHub-Token', url: 'https://github.com/Kachi79/gitops-register-app.git' 
+        }
+      }
+  stage('Update The Deployments Tags') {
+     steps {
+         sh """ 
+             cat deployment.yaml 
+             sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
+             cat deployment.yaml
+           """  
+        }
+      }   
+   }
+}
